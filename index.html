@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cherif Mama — Artiste visuel</title>
+<meta name="description" content="Cherif Mama, artiste visuel basé à Montréal. Peinture, sculpture et technologies émergentes : identité, mémoire, migration et coexistence.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cherif Mama — Artiste visuel">
+<meta property="og:description" content="Peinture, sculpture et technologies émergentes. Montréal.">
+<meta property="og:image" content="https://cherifmama.netlify.app/the-twins.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ffffff;
+    --ink:#000000;
+    --muted:#6b6b6b;
+    --rule:#dcdcdc;
+    --gold:#b08d3c;
+    --pad:clamp(1.25rem, 4vw, 3.5rem);
+    --sans:'Hanken Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; scroll-padding-top:4.5rem; }
+  body{
+    background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-weight:400; font-size:1rem; line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; }
+  img{ display:block; max-width:100%; }
+  button{ font:inherit; color:inherit; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  .wrap{ max-width:1440px; margin:0 auto; padding:0 var(--pad); }
+  .skip{ position:absolute; left:-999px; top:0; background:#fff; padding:.6rem 1rem; z-index:100; }
+  .skip:focus{ left:0; }
+
+  /* ---------- barre de navigation ---------- */
+  .bar{ position:sticky; top:0; z-index:20; background:rgba(255,255,255,.97); border-bottom:1px solid transparent; transition:border-color .25s; }
+  .bar.scrolled{ border-bottom-color:var(--rule); }
+  .bar-in{ display:flex; align-items:center; justify-content:space-between; gap:1.5rem; min-height:3.5rem; }
+  .mark{ font-weight:500; font-size:.95rem; text-decoration:none; opacity:0; transition:opacity .25s; white-space:nowrap; }
+  .bar.scrolled .mark{ opacity:1; }
+  .bar nav ul{ display:flex; align-items:center; gap:1.6rem; list-style:none; }
+  .bar nav a{ font-size:.92rem; text-decoration:none; color:var(--muted); white-space:nowrap; }
+  .bar nav a:hover{ color:var(--ink); }
+  .lang{ background:none; border:1px solid var(--rule); padding:.15rem .6rem; font-size:.82rem; cursor:pointer; }
+  .lang:hover{ border-color:var(--ink); }
+  @media (max-width:760px){
+    .mark{ display:none; }
+    .bar-in{ padding-top:.55rem; padding-bottom:.55rem; }
+    .bar nav ul{ flex-wrap:wrap; gap:.35rem 1.1rem; }
+  }
+
+  /* ---------- titre ---------- */
+  .intro{ padding:clamp(1.6rem,4.5vw,3.5rem) 0 0; }
+  h1{
+    font-weight:300; text-transform:uppercase; letter-spacing:.07em;
+    font-size:clamp(2.2rem,7.2vw,6rem); line-height:1.02;
+  }
+  .sub{ margin-top:1.3rem; color:var(--muted); max-width:56ch; font-size:1.02rem; }
+  .gold-rule{ border:0; border-top:1px solid var(--gold); margin-top:clamp(1.3rem,2.6vw,2rem); }
+
+  section{ padding-top:clamp(3rem,7vw,6rem); }
+  #works{ padding-top:clamp(1.6rem,3.5vw,2.6rem); }
+  h2{ font-weight:300; font-size:clamp(1.5rem,2.6vw,2rem); letter-spacing:.005em; line-height:1.2; }
+
+  /* ---------- œuvres ---------- */
+  .filters{ display:flex; flex-wrap:wrap; gap:.4rem 1.7rem; margin:1rem 0 1.5rem; }
+  .filters button{
+    background:none; border:0; border-bottom:1px solid transparent; padding:.15rem 0;
+    font-size:.95rem; color:var(--muted); cursor:pointer;
+  }
+  .filters button:hover{ color:var(--ink); }
+  .filters button[aria-pressed="true"]{ color:var(--ink); border-bottom-color:var(--ink); }
+  .grid{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:clamp(2.4rem,4.5vw,4rem) clamp(1.2rem,3vw,2.5rem);
+  }
+  @media (max-width:980px){ .grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:560px){ .grid{ grid-template-columns:minmax(0,1fr); } }
+  .work[hidden]{ display:none; }
+  .work-img{ display:block; aspect-ratio:4/5; cursor:zoom-in; }
+  .work-img img{ width:100%; height:100%; object-fit:contain; object-position:center bottom; transition:opacity .2s; }
+  .work-img:hover img{ opacity:.88; }
+  .work figcaption{ margin-top:.9rem; font-size:.9rem; color:var(--muted); line-height:1.45; }
+  .cap-title{ color:var(--ink); font-size:.97rem; }
+  .cap-title em{ font-style:italic; }
+
+  /* ---------- diaporama : grande image + vignettes ---------- */
+  .show[hidden], .grid[hidden]{ display:none; }
+  .show{ margin-bottom:clamp(3rem,6vw,5rem); }
+  .show-stage{ position:relative; display:block; width:100%; height:clamp(320px,64vh,740px); background:none; border:0; cursor:zoom-in; overflow:hidden; }
+  .show-stage img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; transition:opacity .9s ease; }
+  .show-stage img.on{ opacity:1; }
+  .thumbs{ position:relative; display:flex; gap:clamp(.7rem,1.6vw,1.2rem); overflow-x:auto; scrollbar-width:none; margin-top:1.2rem; }
+  .thumbs::-webkit-scrollbar{ display:none; }
+  .thumb{ flex:0 0 auto; border:0; border-bottom:1px solid transparent; background:none; padding:0 0 .4rem; cursor:pointer; opacity:.55; transition:opacity .2s; }
+  .thumb img{ display:block; width:clamp(72px,9vw,118px); aspect-ratio:1; object-fit:cover; }
+  .thumb:hover{ opacity:.85; }
+  .thumb[aria-current="true"]{ opacity:1; border-bottom-color:var(--gold); }
+  .show-bar{ display:flex; justify-content:space-between; align-items:flex-start; gap:1.5rem; margin-top:1rem; }
+  .show-cap figcaption{ font-size:.9rem; color:var(--muted); line-height:1.45; }
+  .show-cap .cap-title{ color:var(--ink); font-size:1rem; }
+  .show-ctl{ display:flex; align-items:center; gap:1.3rem; font-size:.92rem; white-space:nowrap; }
+  .show-ctl button{ background:none; border:0; cursor:pointer; padding:.3rem 0; }
+  .show-ctl button:hover{ text-decoration:underline; text-underline-offset:4px; }
+  .show-count{ color:var(--muted); font-variant-numeric:tabular-nums; }
+  .top-row{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:.6rem 2rem; margin:1rem 0 1.5rem; }
+  .top-row .filters{ margin:0; }
+  .views{ display:flex; gap:1.2rem; }
+  .views button{ background:none; border:0; border-bottom:1px solid transparent; padding:.15rem 0; font-size:.95rem; color:var(--muted); cursor:pointer; }
+  .views button:hover{ color:var(--ink); }
+  .views button[aria-pressed="true"]{ color:var(--ink); border-bottom-color:var(--ink); }
+  @media (max-width:640px){ .show-bar{ flex-direction:column; gap:.8rem; } }
+
+  /* ---------- visionneuse ---------- */
+  .lb{ position:fixed; inset:0; z-index:50; background:#fff; display:none; }
+  .lb.open{ display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,27rem); height:100vh; height:100dvh; }
+  .lb-stage{ min-height:0; padding:4rem 2.5rem 2rem; }
+  .lb-stage img{ width:100%; height:100%; object-fit:contain; }
+  .lb-side{ overflow:auto; padding:4rem 2rem 0; border-left:1px solid var(--rule); display:flex; flex-direction:column; }
+  .lb-side figcaption{ font-size:.95rem; color:var(--muted); line-height:1.5; }
+  .lb-side .cap-title{ font-size:1.2rem; margin-bottom:.35rem; }
+  .lb-desc{ margin-top:1.6rem; padding-top:1.4rem; border-top:1px solid var(--rule); }
+  .lb-desc p{ font-size:.97rem; line-height:1.7; margin-bottom:.95rem; max-width:60ch; }
+  .lb-nav{ margin-top:auto; position:sticky; bottom:0; background:#fff; padding:1rem 0 1.2rem; border-top:1px solid var(--rule); display:flex; align-items:center; gap:1.4rem; font-size:.92rem; }
+  .lb-desc{ margin-bottom:1.5rem; }
+  .lb-nav button, .lb-close{ background:none; border:0; cursor:pointer; padding:.3rem 0; }
+  .lb-nav button:hover, .lb-close:hover{ text-decoration:underline; text-underline-offset:4px; }
+  .lb-count{ margin-left:auto; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .lb-close{ position:absolute; top:1.1rem; right:1.5rem; z-index:2; font-size:.95rem; }
+  @media (max-width:820px){
+    .lb.open{ grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,56dvh) minmax(0,1fr); }
+    .lb-stage{ padding:3.4rem 1rem 1rem; }
+    .lb-side{ border-left:0; border-top:1px solid var(--rule); padding:1.2rem 1.25rem 0; }
+  }
+
+  /* ---------- biographie ---------- */
+  .bio{ display:grid; grid-template-columns:minmax(240px,420px) minmax(0,1fr); gap:clamp(1.8rem,5vw,5rem); align-items:start; margin-top:2rem; }
+  .bio-portrait{ width:100%; height:auto; position:sticky; top:5rem; }
+  .bio-text p{ max-width:62ch; margin-bottom:1.2rem; font-size:1.05rem; line-height:1.7; }
+  .bio-text p.bio-lead{ font-size:1.4rem; line-height:1.5; font-weight:300; margin-bottom:1.6rem; }
+  .bio-sep{ letter-spacing:.5em; color:var(--muted); margin:2.2rem 0 1.6rem; }
+  .bio-text p.bio-facts{ font-size:.97rem; line-height:1.75; color:#222; margin-bottom:.8rem; }
+  @media (max-width:760px){ .bio{ grid-template-columns:minmax(0,1fr); } .bio-portrait{ position:static; max-width:420px; } }
+
+  /* ---------- CV ---------- */
+  .cv{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2.6rem clamp(2rem,6vw,6rem); margin-top:2rem; }
+  @media (max-width:760px){ .cv{ grid-template-columns:minmax(0,1fr); } }
+  .cv h3{ font-weight:500; font-size:1rem; margin-bottom:.6rem; }
+  .cv-row{ display:grid; grid-template-columns:6.5rem minmax(0,1fr); gap:1rem; padding:.7rem 0; border-top:1px solid var(--rule); }
+  .cv-row.solo{ grid-template-columns:minmax(0,1fr); }
+  .cv-date{ color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  /* ---------- films ---------- */
+  .films{ margin-top:2rem; display:grid; gap:3.5rem; }
+  .film{ max-width:960px; }
+  .film video{ display:block; width:100%; aspect-ratio:16/9; background:#000; }
+  .film h3{ font-weight:400; font-size:1.2rem; margin-top:1rem; }
+  .film .kind{ color:var(--muted); font-size:.9rem; margin-top:.15rem; }
+  .film p.txt{ max-width:62ch; margin-top:.7rem; line-height:1.65; }
+
+  /* ---------- publications ---------- */
+  .pubs{ margin-top:2rem; border-bottom:1px solid var(--rule); }
+  .pub{ border-top:1px solid var(--rule); }
+  .pub summary{ list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:baseline; gap:1.5rem; padding:1.2rem 0; }
+  .pub summary::-webkit-details-marker{ display:none; }
+  .pub summary::after{ content:"+"; font-size:1.4rem; line-height:1; color:var(--muted); }
+  .pub[open] summary::after{ content:"–"; }
+  .pub-name{ display:block; font-size:1.2rem; }
+  .pub-meta{ display:block; color:var(--muted); font-size:.92rem; margin-top:.2rem; }
+  .pub-body{ padding:0 0 1.8rem; max-width:64ch; }
+  .pub-body p{ line-height:1.75; margin-bottom:1rem; }
+
+  /* ---------- contact ---------- */
+  footer{ margin-top:clamp(4rem,9vw,8rem); border-top:1px solid var(--rule); padding:2.4rem 0 3rem; }
+  .foot{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2rem; }
+  .foot h2{ font-size:1.15rem; margin-bottom:.8rem; }
+  .foot p{ line-height:1.8; }
+  .foot a{ text-underline-offset:4px; }
+  .fine{ color:var(--muted); font-size:.88rem; align-self:flex-end; }
+
+  @media (prefers-reduced-motion:reduce){
+    html{ scroll-behavior:auto; }
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip i" href="#works" data-fr="Aller au contenu" data-en="Skip to content">Aller au contenu</a>
+
+<header class="bar" id="bar">
+  <div class="wrap bar-in">
+    <a class="mark" href="#top">Cherif Mama</a>
+    <nav aria-label="Navigation principale">
+      <ul>
+        <li><a href="#works" class="i" data-fr="Œuvres" data-en="Works">Œuvres</a></li>
+        <li><a href="#biography" class="i" data-fr="Biographie" data-en="Biography">Biographie</a></li>
+        <li><a href="#cv">CV</a></li>
+        <li><a href="#films">Films &amp; VR</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><button class="lang" id="lang" type="button" aria-label="Changer de langue / Switch language">EN</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <div class="intro">
+      <h1 id="name">Cherif Mama</h1>
+      <p class="sub i" data-fr="Artiste visuel basé à Montréal, né en Côte d’Ivoire et d’origine béninoise. Sa pratique explore l’identité, la mémoire, la migration et la coexistence." data-en="Visual artist based in Montreal, born in Côte d’Ivoire and of Beninese heritage. His practice explores identity, memory, migration, and coexistence.">Artiste visuel basé à Montréal, né en Côte d’Ivoire et d’origine béninoise. Sa pratique explore l’identité, la mémoire, la migration et la coexistence.</p>
+      <hr class="gold-rule">
+    </div>
+
+    <!-- ŒUVRES -->
+    <section id="works" aria-labelledby="works-h">
+      <span id="peinture"></span><span id="sculpture"></span>
+      <h2 id="works-h" class="i" data-fr="Œuvres" data-en="Works">Œuvres</h2>
+      <div class="top-row">
+      <div class="filters" role="group" aria-label="Filtrer les œuvres">
+        <button type="button" data-filter="all" aria-pressed="true" class="i" data-fr="Tout" data-en="All">Tout</button>
+        <button type="button" data-filter="golden-lines" aria-pressed="false">Golden Lines</button>
+        <button type="button" data-filter="identity-multiplicity" aria-pressed="false">Identity Multiplicity</button>
+        <button type="button" data-filter="autres" aria-pressed="false" class="i" data-fr="Autres œuvres" data-en="Other works">Autres œuvres</button>
+        <button type="button" data-filter="sculpture" aria-pressed="false">Sculpture</button>
+      </div>
+      <div class="views" role="group" aria-label="Mode d’affichage">
+        <button type="button" data-view="show" aria-pressed="true" class="i" data-fr="Diaporama" data-en="Slideshow">Diaporama</button>
+        <button type="button" data-view="grid" aria-pressed="false" class="i" data-fr="Grille" data-en="Grid">Grille</button>
+      </div>
+      </div>
+      <div class="show" id="show" role="region" aria-roledescription="carousel" aria-label="Diaporama des œuvres">
+        <button class="show-stage" id="show-stage" type="button" aria-label="Agrandir l’œuvre"><img alt=""><img alt=""></button>
+        <div class="thumbs" id="thumbs"></div>
+        <div class="show-bar">
+          <div class="show-cap" id="show-cap"></div>
+          <div class="show-ctl">
+            <button type="button" id="show-prev" class="i" data-fr="Précédente" data-en="Previous">Précédente</button>
+            <button type="button" id="show-next" class="i" data-fr="Suivante" data-en="Next">Suivante</button>
+            <button type="button" id="show-pause" aria-pressed="false">Pause</button>
+            <span class="show-count" id="show-count"></span>
+          </div>
+        </div>
+      </div>
+      <div class="grid" id="grid" hidden>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="sans-titre-1.jpg" aria-label="Sans titre 1">
+          <img src="sans-titre-1.jpg" data-th="th-sans-titre-1.jpg" alt="Sans titre 1" width="1098" height="1433" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Sans titre 1</em></p>
+        </figcaption>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="sans-titre-2.jpg" aria-label="Sans titre 2">
+          <img src="sans-titre-2.jpg" data-th="th-sans-titre-2.jpg" alt="Sans titre 2" width="1075" height="1463" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Sans titre 2</em></p>
+        </figcaption>
+      </figure>
+      <figure class="work" data-series="autres">
+        <a class="work-img" href="sans-titre-3.jpg" aria-label="Sans titre 3">
+          <img src="sans-titre-3.jpg" data-th="th-sans-titre-3.jpg" alt="Sans titre 3" width="544" height="677" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Sans titre 3</em></p>
+        </figcaption>
+      </figure>
+      <figure class="work" data-series="autres">
+        <a class="work-img" href="sans-titre-4.jpg" aria-label="Sans titre 4">
+          <img src="sans-titre-4.jpg" data-th="th-sans-titre-4.jpg" alt="Sans titre 4" width="1411" height="1114" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Sans titre 4</em></p>
+        </figcaption>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="sans-titre-5.jpg" aria-label="Sans titre 5">
+          <img src="sans-titre-5.jpg" data-th="th-sans-titre-5.jpg" alt="Sans titre 5" width="1010" height="1256" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Sans titre 5</em></p>
+        </figcaption>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="traversee-interieure.jpg" aria-label="Traversée intérieure">
+          <img src="traversee-interieure.jpg" data-th="th-traversee-interieure.jpg" alt="Traversée intérieure, 2024 — Technique mixte sur toile" width="544" height="728" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Traversée intérieure</em>, 2024</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Dans Traversée intérieure, l&#x27;artiste explore les différentes couches qui composent notre identité et invite à un voyage vers l&#x27;intérieur de soi.</p><p class="i">Les masques représentent les identités que nous portons au fil de notre existence : celles que nous construisons, celles que nous héritons, mais aussi celles que le regard des autres nous impose. Derrière ces différentes apparences, l&#x27;œil symbolise la conscience, ce regard intérieur qui demeure et questionne qui nous sommes réellement.</p><p class="i">L&#x27;escalier devient alors le symbole de cette traversée : un chemin qui nous pousse à aller au-delà des apparences, à franchir nos propres couches et à nous confronter à notre multiplicité. Au bout, la lumière n&#x27;apporte pas une réponse définitive, mais ouvre la possibilité d&#x27;une meilleure compréhension de soi.</p><p class="i">Les lignes dorées relient l&#x27;ensemble de ces fragments, rappelant que nos différentes identités ne s&#x27;opposent pas nécessairement : elles coexistent et participent toutes à ce que nous sommes.</p><p class="i">Parce que le vrai voyage commence en nous.</p></div>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="what-connect-us.jpg" aria-label="What connect us">
+          <img src="what-connect-us.jpg" data-th="th-what-connect-us.jpg" alt="What connect us, 2024 — Technique mixte sur toile" width="700" height="514" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>What connect us</em>, 2024</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">What Connects Us met en scène deux êtres, deux réalités, deux façons d&#x27;exister. Ils peuvent être différents, parfois même opposés, mais quelque chose continue de les relier.</p><p class="i">La ligne dorée matérialise ce lien. Elle ne cherche pas à effacer les différences ni à faire des deux êtres une seule identité. Elle affirme au contraire qu&#x27;une relation peut exister sans que l&#x27;un ait à devenir l&#x27;autre.</p><p class="i">L&#x27;œuvre parle ainsi d&#x27;acceptation : je te vois dans ta différence, je reconnais ce qui nous sépare, et pourtant je choisis ce qui nous relie.</p></div>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="sans-titre.jpg" aria-label="Sans titre">
+          <img src="sans-titre.jpg" data-th="th-sans-titre.jpg" alt="Sans titre, 2024 — Technique mixte sur toile" width="537" height="719" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Sans titre</em>, 2024</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="24 × 36 po" data-en="24 × 36 in">24 × 36 po</p>
+        </figcaption>
+        
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="the-lady-and-her-multiplicities.jpg" aria-label="The Lady and her Multiplicities">
+          <img src="the-lady-and-her-multiplicities.jpg" data-th="th-the-lady-and-her-multiplicities.jpg" alt="The Lady and her Multiplicities, 2025 — Technique mixte sur toile" width="657" height="845" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>The Lady and her Multiplicities</em>, 2025</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Dans The Lady and Her Multiplicities, l&#x27;artiste explore la multiplicité de l&#x27;identité à travers une figure féminine qui semble exister sous plusieurs formes à la fois.</p><p class="i">Les visages, les regards et les fragments de corps se superposent et se confondent, révélant les différentes versions d&#x27;une même personne : celle que l&#x27;on montre, celle que les autres perçoivent, celle que l&#x27;on a été et celle que l&#x27;on devient.</p><p class="i">Plutôt que de chercher à définir une identité unique, l&#x27;œuvre invite à accepter la coexistence de ces différentes facettes. Les lignes dorées traversent et relient les fragments, créant un fil entre ces multiples présences.</p><p class="i">Une seule personne peut contenir plusieurs identités, plusieurs histoires, plusieurs façons d&#x27;être au monde.</p></div>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="golden-lines-i.jpg" aria-label="Golden Lines I">
+          <img src="golden-lines-i.jpg" data-th="th-golden-lines-i.jpg" alt="Golden Lines I, 2024 — Technique mixte sur toile" width="624" height="832" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Golden Lines I</em>, 2024</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i" data-fr="Représentation abstraite du concept de lignes dorées." data-en="Abstract representation of the golden lines concept.">Représentation abstraite du concept de lignes dorées.</p></div>
+      </figure>
+      <figure class="work" data-series="golden-lines">
+        <a class="work-img" href="golden-lines-ii.jpg" aria-label="Golden Lines II">
+          <img src="golden-lines-ii.jpg" data-th="th-golden-lines-ii.jpg" alt="Golden Lines II, 2024 — Technique mixte sur toile" width="539" height="718" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Golden Lines II</em>, 2024</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i" data-fr="Représentation abstraite du concept de lignes dorées." data-en="Abstract representation of the golden lines concept.">Représentation abstraite du concept de lignes dorées.</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="it-is-me.jpg" aria-label="It is Me">
+          <img src="it-is-me.jpg" data-th="th-it-is-me.jpg" alt="It is Me, 2026 — Acrylique et huile sur toile" width="510" height="679" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>It is Me</em>, 2026</p>
+          <p class="cap-line i" data-fr="Acrylique et huile sur toile" data-en="Acrylic and oil on canvas">Acrylique et huile sur toile</p><p class="cap-line i" data-fr="30 × 40 po" data-en="30 × 40 in">30 × 40 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">It Is Me explore la multiplicité de l&#x27;identité et la manière dont plusieurs versions de soi peuvent coexister au sein d&#x27;un même individu.</p><p class="i">Les visages se superposent, se fragmentent et se confondent jusqu&#x27;à former une seule présence. Chaque regard semble appartenir à une identité différente, comme autant de facettes, de souvenirs et d&#x27;expériences qui participent à la construction de soi.</p><p class="i">À travers cette accumulation de visages, l&#x27;artiste questionne l&#x27;idée d&#x27;une identité unique et figée. L&#x27;œuvre invite à parcourir les différentes couches qui nous composent et à se demander : parmi toutes ces versions de moi, laquelle est véritablement moi ?</p><p class="i">It Is Me ne cherche pas nécessairement une réponse. Elle suggère plutôt que l&#x27;identité se trouve peut-être justement dans cette multiplicité : je suis chacun de ces fragments, et leur coexistence forme ce que je suis.</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="toi-moi-ou-nous.jpg" aria-label="Toi, Moi ou Nous">
+          <img src="toi-moi-ou-nous.jpg" data-th="th-toi-moi-ou-nous.jpg" alt="Toi, Moi ou Nous, 2025 — Acrylique et huile sur toile" width="533" height="795" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Toi, Moi ou Nous</em>, 2025</p>
+          <p class="cap-line i" data-fr="Acrylique et huile sur toile" data-en="Acrylic and oil on canvas">Acrylique et huile sur toile</p><p class="cap-line i" data-fr="24 × 36 po" data-en="24 × 36 in">24 × 36 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Toi, moi, nous explore l&#x27;identité à travers la rencontre avec l&#x27;autre.</p><p class="i">Deux présences semblent habiter un même visage. Elles se superposent, se traversent et se transforment mutuellement, brouillant progressivement la frontière entre ce qui appartient à soi et ce qui vient de l&#x27;autre.</p><p class="i">L&#x27;artiste interroge ainsi la manière dont notre identité se construit aussi dans nos relations, nos héritages et les personnes qui traversent notre existence. Une partie de l&#x27;autre demeure en nous, tout comme une partie de nous existe dans le regard de l&#x27;autre.</p><p class="i">L&#x27;œuvre invite alors à questionner cette frontière : où finit le « toi », où commence le « moi », et à quel moment devenons-nous « nous » ?</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="identity-multiplicity-blue-painting.jpg" aria-label="Identity multiplicity Blue Painting">
+          <img src="identity-multiplicity-blue-painting.jpg" data-th="th-identity-multiplicity-blue-painting.jpg" alt="Identity multiplicity Blue Painting, 2026 — Acrylique et huile sur toile" width="425" height="603" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Identity multiplicity Blue Painting</em>, 2026</p>
+          <p class="cap-line i" data-fr="Acrylique et huile sur toile" data-en="Acrylic and oil on canvas">Acrylique et huile sur toile</p><p class="cap-line i" data-fr="30 × 40 po" data-en="30 × 40 in">30 × 40 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Dans cette œuvre, l&#x27;artiste explore le chemin que l&#x27;on emprunte à travers nos différentes identités pour se découvrir.</p><p class="i">Les visages se superposent, se croisent et émergent de la matière comme autant de facettes d&#x27;un même être. Ils évoquent les identités dont nous héritons, celles que nous construisons et celles que nous découvrons au fil de notre existence.</p><p class="i">À travers ces multiples visages se déploie ONA — le chemin, un langage graphique créé par l&#x27;artiste. Il traverse la composition comme une trajectoire intérieure, symbolisant le parcours que chacun entreprend à travers les différentes couches de son identité pour mieux se comprendre.</p><p class="i">L&#x27;œuvre invite ainsi à considérer l&#x27;identité non comme quelque chose de fixe, mais comme un chemin de découverte de soi, où chaque fragment, chaque expérience et chaque identité participe à la compréhension de qui nous sommes.</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="identity-multiplicity-red-painting.jpg" aria-label="Identity multiplicity Red Painting">
+          <img src="identity-multiplicity-red-painting.jpg" data-th="th-identity-multiplicity-red-painting.jpg" alt="Identity multiplicity Red Painting, 2026 — Acrylique et huile sur toile" width="478" height="658" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Identity multiplicity Red Painting</em>, 2026</p>
+          <p class="cap-line i" data-fr="Acrylique et huile sur toile" data-en="Acrylic and oil on canvas">Acrylique et huile sur toile</p><p class="cap-line i" data-fr="30 × 40 po" data-en="30 × 40 in">30 × 40 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Dans cette œuvre, l&#x27;artiste explore le chemin que l&#x27;on emprunte à travers nos différentes identités pour se découvrir.</p><p class="i">Les visages se superposent, se croisent et émergent de la matière comme autant de facettes d&#x27;un même être. Ils évoquent les identités dont nous héritons, celles que nous construisons et celles que nous découvrons au fil de notre existence.</p><p class="i">À travers ces multiples visages se déploie ONA — le chemin, un langage graphique créé par l&#x27;artiste. Il traverse la composition comme une trajectoire intérieure, symbolisant le parcours que chacun entreprend à travers les différentes couches de son identité pour mieux se comprendre.</p><p class="i">L&#x27;œuvre invite ainsi à considérer l&#x27;identité non comme quelque chose de fixe, mais comme un chemin de découverte de soi, où chaque fragment, chaque expérience et chaque identité participe à la compréhension de qui nous sommes.</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="identity-multiplicity-bronze-effect.jpg" aria-label="Identity multiplicity Bronze effect">
+          <img src="identity-multiplicity-bronze-effect.jpg" data-th="th-identity-multiplicity-bronze-effect.jpg" alt="Identity multiplicity Bronze effect, 2026 — Technique mixte sur toile" width="571" height="763" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Identity multiplicity Bronze effect</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="30 × 40 po" data-en="30 × 40 in">30 × 40 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Dans cette œuvre, l&#x27;artiste explore le chemin que l&#x27;on emprunte à travers nos différentes identités pour se découvrir.</p><p class="i">Les visages se superposent, se croisent et émergent de la matière comme autant de facettes d&#x27;un même être. Ils évoquent les identités dont nous héritons, celles que nous construisons et celles que nous découvrons au fil de notre existence.</p><p class="i">À travers ces multiples visages se déploie ONA — le chemin, un langage graphique créé par l&#x27;artiste. Il traverse la composition comme une trajectoire intérieure, symbolisant le parcours que chacun entreprend à travers les différentes couches de son identité pour mieux se comprendre.</p><p class="i">L&#x27;œuvre invite ainsi à considérer l&#x27;identité non comme quelque chose de fixe, mais comme un chemin de découverte de soi, où chaque fragment, chaque expérience et chaque identité participe à la compréhension de qui nous sommes.</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="the-twins.jpg" aria-label="The Twins">
+          <img src="the-twins.jpg" data-th="th-the-twins.jpg" alt="The Twins, 2026 — Technique mixte sur toile, cadre antique" width="1276" height="1629" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>The Twins</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile, cadre antique" data-en="Mixed media on canvas, antique frame">Technique mixte sur toile, cadre antique</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Les Twins s&#x27;inscrit dans la série Identity Multiplicity, qui explore les différentes identités coexistantes en chacun de nous. À travers la figure des jumeaux, l&#x27;artiste met en scène deux êtres issus d&#x27;une même origine, mais façonnés par des expériences et des trajectoires distinctes. Le cauri, placé comme un lien entre eux, symbolise la mémoire, l&#x27;héritage et la transmission. Les jumeaux deviennent ainsi le reflet d&#x27;une identité plurielle : semblable et différente, intime et héritée, unique et multiple à la fois.</p></div>
+      </figure>
+      <figure class="work" data-series="identity-multiplicity">
+        <a class="work-img" href="the-twins-2.jpg" aria-label="The Twins 2">
+          <img src="the-twins-2.jpg" data-th="th-the-twins-2.jpg" alt="The Twins 2, 2026 — Technique mixte sur toile, cadre antique" width="1470" height="1070" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>The Twins 2</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile, cadre antique" data-en="Mixed media on canvas, antique frame">Technique mixte sur toile, cadre antique</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">Les Twins s&#x27;inscrit dans la série Identity Multiplicity, qui explore les différentes identités coexistantes en chacun de nous. À travers la figure des jumeaux, l&#x27;artiste met en scène deux êtres issus d&#x27;une même origine, mais façonnés par des expériences et des trajectoires distinctes. Le cauri, placé comme un lien entre eux, symbolise la mémoire, l&#x27;héritage et la transmission. Les jumeaux deviennent ainsi le reflet d&#x27;une identité plurielle : semblable et différente, intime et héritée, unique et multiple à la fois.</p></div>
+      </figure>
+      <figure class="work" data-series="autres">
+        <a class="work-img" href="retour.jpg" aria-label="Retour">
+          <img src="retour.jpg" data-th="th-retour.jpg" alt="Retour — Œuvre installation, technique mixte" width="1800" height="1310" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Retour</em></p>
+          <p class="cap-line i" data-fr="Œuvre installation, technique mixte" data-en="Installation piece, mixed media">Œuvre installation, technique mixte</p>
+        </figcaption>
+        <div class="desc" hidden><p class="i">RETOUR explore la nécessité de revenir vers ses origines pour mieux comprendre ce que l&#x27;on devient. Au centre, le Cahier d&#x27;un retour au pays natal d&#x27;Aimé Césaire transforme l&#x27;œuvre en un espace de mémoire, de lecture et de transmission. Les yeux observent, cherchent et témoignent, tandis que la corde évoque les liens invisibles qui nous rattachent à notre histoire. Ici, le retour n&#x27;est pas un recul : c&#x27;est une reconquête de soi. Car même fragmentée, déplacée ou enfouie, une culture ne disparaît jamais.</p></div>
+      </figure>
+      <figure class="work" data-series="autres">
+        <a class="work-img" href="cahier-d-un-retour-au-pays-natal.jpg" aria-label="Cahier d&#x27;un retour au pays natal">
+          <img src="cahier-d-un-retour-au-pays-natal.jpg" data-th="th-cahier-d-un-retour-au-pays-natal.jpg" alt="Cahier d&#x27;un retour au pays natal, 2026 — Technique mixte sur toile" width="1362" height="1800" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Cahier d&#x27;un retour au pays natal</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte sur toile" data-en="Mixed media on canvas">Technique mixte sur toile</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        
+      </figure>
+      <figure class="work" data-series="sculpture">
+        <a class="work-img" href="identity-multiplicity-sculpture.jpg" aria-label="Identity Multiplicity Sculpture">
+          <img src="identity-multiplicity-sculpture.jpg" data-th="th-identity-multiplicity-sculpture.jpg" alt="Identity Multiplicity Sculpture, 2026 — Sculpture, effet bronze" width="636" height="900" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Identity Multiplicity Sculpture</em>, 2026</p>
+          <p class="cap-line i" data-fr="Sculpture, effet bronze" data-en="Sculpture, bronze effect">Sculpture, effet bronze</p>
+        </figcaption>
+        
+      </figure>
+      <figure class="work" data-series="sculpture">
+        <a class="work-img" href="vestiges-identitaires-1.jpg" aria-label="Vestiges identitaires 1">
+          <img src="vestiges-identitaires-1.jpg" data-th="th-vestiges-identitaires-1.jpg" alt="Vestiges identitaires 1, 2026 — Technique mixte" width="1168" height="1800" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Vestiges identitaires 1</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte" data-en="Mixed media">Technique mixte</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        
+      </figure>
+      <figure class="work" data-series="sculpture">
+        <a class="work-img" href="vestiges-identitaires-2.jpg" aria-label="Vestiges identitaires 2">
+          <img src="vestiges-identitaires-2.jpg" data-th="th-vestiges-identitaires-2.jpg" alt="Vestiges identitaires 2, 2026 — Technique mixte" width="941" height="1672" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Vestiges identitaires 2</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte" data-en="Mixed media">Technique mixte</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        
+      </figure>
+      <figure class="work" data-series="sculpture">
+        <a class="work-img" href="vestiges-identitaires-3.jpg" aria-label="Vestiges identitaires 3">
+          <img src="vestiges-identitaires-3.jpg" data-th="th-vestiges-identitaires-3.jpg" alt="Vestiges identitaires 3, 2026 — Technique mixte" width="1006" height="1564" loading="lazy">
+        </a>
+        <figcaption>
+          <p class="cap-title"><em>Vestiges identitaires 3</em>, 2026</p>
+          <p class="cap-line i" data-fr="Technique mixte" data-en="Mixed media">Technique mixte</p><p class="cap-line i" data-fr="36 × 48 po" data-en="36 × 48 in">36 × 48 po</p>
+        </figcaption>
+        
+      </figure>
+      </div>
+    </section>
+
+    <!-- BIOGRAPHIE -->
+    <section id="biography" aria-labelledby="bio-h">
+      <span id="about"></span>
+      <h2 id="bio-h" class="i" data-fr="Biographie" data-en="Biography">Biographie</h2>
+      <div class="bio">
+        <img class="bio-portrait" src="atelier-cherif-mama.jpg" alt="Cherif Mama dans son atelier, devant ses toiles" width="1086" height="1130" loading="lazy">
+        <div class="bio-text">
+          <p class="bio-lead i" data-fr="Cherif Mama est un artiste visuel né en Côte d’Ivoire, d’origine béninoise, et installé à Montréal. Il cartographie l’identité diasporique : ce que nos origines nous lèguent, ce que l’ailleurs nous donne, et les lignes d’or qui les relient." data-en="Cherif Mama is a visual artist born in Côte d’Ivoire, of Beninese heritage, and based in Montreal. He maps diasporic identity: what our origins bequeath to us, what elsewhere gives us, and the golden lines that link them.">Cherif Mama est un artiste visuel né en Côte d’Ivoire, d’origine béninoise, et installé à Montréal. Il cartographie l’identité diasporique : ce que nos origines nous lèguent, ce que l’ailleurs nous donne, et les lignes d’or qui les relient.</p>
+          <p class="i" data-fr="Au fil des années, il a construit un langage visuel qui lui est propre : un ensemble de symboles qui circulent entre ses peintures et ses sculptures, comme les signes d’une même carte. Chacun marque un repère, une mémoire ou un chemin pour mieux se comprendre." data-en="Over the years, he has built a visual language of his own: a set of symbols that move between his paintings and his sculptures, like the signs of a single map. Each one marks a landmark, a memory or a path toward understanding oneself better.">Au fil des années, il a construit un langage visuel qui lui est propre : un ensemble de symboles qui circulent entre ses peintures et ses sculptures, comme les signes d’une même carte. Chacun marque un repère, une mémoire ou un chemin pour mieux se comprendre.</p>
+          <p class="i" data-fr="Les lignes dorées, elles, font écho à une philosophie : s’accepter tel qu’on est, dans son imperfection. Elles ne cachent pas les cassures, elles les recouvrent d’or." data-en="The golden lines, for their part, echo a philosophy: accepting oneself as one is, imperfections included. They do not hide the breaks; they cover them with gold.">Les lignes dorées, elles, font écho à une philosophie : s’accepter tel qu’on est, dans son imperfection. Elles ne cachent pas les cassures, elles les recouvrent d’or.</p>
+          <p class="i" data-fr="Peu à peu, ce vocabulaire dessine un atlas personnel, qui parle aussi de tous ceux qui vivent entre plusieurs mondes." data-en="Little by little, this vocabulary draws a personal atlas, one that also speaks of all those who live between several worlds.">Peu à peu, ce vocabulaire dessine un atlas personnel, qui parle aussi de tous ceux qui vivent entre plusieurs mondes.</p>
+          <p class="i" data-fr="Parallèlement, il explore l’intelligence artificielle comme partenaire de création, à la fois outil et objet de recherche. Il y questionne la place des artistes noirs dans les processus d’innovation en art, et la façon dont ces technologies peuvent élargir la création sans effacer les perspectives trop souvent laissées de côté." data-en="Alongside this, he explores artificial intelligence as a creative partner, both a tool and an object of research. He questions the place of Black artists in the processes of innovation in art, and the way these technologies can broaden creation without erasing the perspectives too often left out.">Parallèlement, il explore l’intelligence artificielle comme partenaire de création, à la fois outil et objet de recherche. Il y questionne la place des artistes noirs dans les processus d’innovation en art, et la façon dont ces technologies peuvent élargir la création sans effacer les perspectives trop souvent laissées de côté.</p>
+          <p class="i" data-fr="Son travail invite à voir l’identité non pas comme une origine unique, mais comme une carte en mouvement, où plusieurs histoires cohabitent dans une même personne." data-en="His work invites us to see identity not as a single origin, but as a map in motion, where several stories coexist within one person.">Son travail invite à voir l’identité non pas comme une origine unique, mais comme une carte en mouvement, où plusieurs histoires cohabitent dans une même personne.</p>
+          <p class="bio-sep" aria-hidden="true">* * *</p>
+          <p class="bio-facts i" data-fr="CHERIF MAMA (né en Côte d’Ivoire, d’origine béninoise) vit et travaille à Montréal, Canada." data-en="CHERIF MAMA (born in Côte d’Ivoire, of Beninese heritage) lives and works in Montreal, Canada.">CHERIF MAMA (né en Côte d’Ivoire, d’origine béninoise) vit et travaille à Montréal, Canada.</p>
+          <p class="bio-facts i" data-html data-fr="Expositions solo : <em>Coexistence</em>, Montréal (2025). Expositions collectives : <em>Miami Set 001</em>, Miami (2025)." data-en="Solo exhibitions include: <em>Coexistence</em>, Montreal (2025). Group exhibitions: <em>Miami Set 001</em>, Miami (2025).">Expositions solo : <em>Coexistence</em>, Montréal (2025). Expositions collectives : <em>Miami Set 001</em>, Miami (2025).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CV -->
+    <section id="cv" aria-labelledby="cv-h">
+      <h2 id="cv-h">CV</h2>
+      <div class="cv">
+        <div>
+          <h3 class="i" data-fr="Expositions" data-en="Exhibitions">Expositions</h3>
+          <div class="cv-row"><span class="cv-date">2025</span><span class="i" data-fr="Exposition collective — Miami Set 001, Miami" data-en="Group exhibition — Miami Set 001, Miami">Exposition collective — Miami Set 001, Miami</span></div>
+          <div class="cv-row"><span class="cv-date">2025</span><span class="i" data-fr="Exposition solo — Coexistence, Montréal" data-en="Solo exhibition — Coexistence, Montreal">Exposition solo — Coexistence, Montréal</span></div>
+        </div>
+        <div>
+          <h3 class="i" data-fr="Parcours professionnel" data-en="Employment">Parcours professionnel</h3>
+          <div class="cv-row"><span class="cv-date">2021 – 2026</span><span class="i" data-fr="Artiste multidisciplinaire" data-en="Multidisciplinary artist">Artiste multidisciplinaire</span></div>
+          <div class="cv-row"><span class="cv-date">2025 – 2026</span><span class="i" data-fr="Recherche-création" data-en="Research-creation">Recherche-création</span></div>
+        </div>
+        <div>
+          <h3 class="i" data-fr="Publications" data-en="Publications">Publications</h3>
+          <div class="cv-row"><span class="cv-date">2026</span><span class="i" data-fr="Livre — Les lignes invisibles (à paraître)" data-en="Book — Les lignes invisibles (forthcoming)">Livre — Les lignes invisibles (à paraître)</span></div>
+        </div>
+        <div>
+          <h3 class="i" data-fr="Formation" data-en="Education">Formation</h3>
+          <div class="cv-row solo"><span class="i" data-fr="Artiste visuel indépendant" data-en="Independent visual artist">Artiste visuel indépendant</span></div>
+          <h3 class="i" data-fr="Domaines de pratique" data-en="Areas of practice" style="margin-top:1.8rem">Domaines de pratique</h3>
+          <div class="cv-row solo"><span class="i" data-fr="Peinture, sculpture, recherche-création, art numérique, installation" data-en="Painting, sculpture, research-creation, digital art, installation">Peinture, sculpture, recherche-création, art numérique, installation</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILMS & VR -->
+    <section id="films" aria-labelledby="films-h">
+      <h2 id="films-h">Films &amp; VR</h2>
+      <div class="films">
+        <article class="film">
+          <video controls preload="none" playsinline poster="court-metrage-poster.jpg">
+            <source src="court-metrage.mp4" type="video/mp4">
+          </video>
+          <h3>Les lignes invisibles du Bénin</h3>
+          <p class="kind i" data-fr="Court-métrage · environ 1 min · en finalisation" data-en="Short film · about 1 min · in final edits">Court-métrage · environ 1 min · en finalisation</p>
+          <p class="txt i" data-fr="Un court-métrage poétique sur les lignes invisibles qui relient le Bénin à sa mémoire, ses générations et son identité, malgré les ruptures de l’Histoire." data-en="A poetic short film on the invisible lines that connect Benin to its memory, its generations and its identity, despite the ruptures of History.">Un court-métrage poétique sur les lignes invisibles qui relient le Bénin à sa mémoire, ses générations et son identité, malgré les ruptures de l’Histoire.</p>
+        </article>
+        <article class="film">
+          <video controls preload="none" playsinline poster="vr-teaser-poster.jpg">
+            <source src="vr-teaser.mp4" type="video/mp4">
+          </video>
+          <h3 class="i" data-fr="Les lignes invisibles du Bénin — l’expérience VR" data-en="The Invisible Lines of Benin — the VR experience">Les lignes invisibles du Bénin — l’expérience VR</h3>
+          <p class="kind i" data-fr="Expérience VR / XR · teaser · recherche-création" data-en="VR / XR experience · teaser · research-creation">Expérience VR / XR · teaser · recherche-création</p>
+          <p class="txt i" data-fr="Un premier teaser de l’expérience immersive. Le projet est en cours de développement — la description complète suivra." data-en="A first teaser of the immersive experience. The project is in development — the full description will follow.">Un premier teaser de l’expérience immersive. Le projet est en cours de développement — la description complète suivra.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- PUBLICATIONS -->
+    <section id="publications" aria-labelledby="pub-h">
+      <h2 id="pub-h">Publications</h2>
+      <div class="pubs">
+        <details class="pub">
+          <summary>
+            <span><span class="pub-name">Les lignes invisibles</span><span class="pub-meta i" data-fr="Livre · manuscrit en recherche d’éditeur" data-en="Book · manuscript seeking a publisher">Livre · manuscrit en recherche d’éditeur</span></span>
+          </summary>
+          <div class="pub-body">
+            <p class="i" data-fr="Un essai personnel sur la multiplicité de l’identité — comment cesser de chercher à se définir par une seule chose (origines, culture, immigration) pour enfin accepter d’être fait de plusieurs couches à la fois, et ce que cette acceptation change dans le rapport aux autres." data-en="A personal essay on the multiplicity of identity — on letting go of the need to define oneself by any single thing (origins, culture, immigration) and instead accepting being made of several layers at once, and what that acceptance changes in how we relate to others.">Un essai personnel sur la multiplicité de l’identité — comment cesser de chercher à se définir par une seule chose (origines, culture, immigration) pour enfin accepter d’être fait de plusieurs couches à la fois, et ce que cette acceptation change dans le rapport aux autres.</p>
+          </div>
+        </details>
+        <details class="pub">
+          <summary>
+            <span><span class="pub-name">Les artistes de la diaspora face aux nouvelles technologies</span><span class="pub-meta">L’intelligence artificielle comme nouveau territoire de création</span></span>
+          </summary>
+          <div class="pub-body"><p>Chaque époque transforme la manière dont les artistes créent. L’invention de la photographie, de la vidéo ou d’Internet a profondément modifié notre rapport aux images. Aujourd’hui, cette transformation porte un nom : l’intelligence artificielle. Pour certains, elle représente une menace. Pour d’autres, un simple outil. Pour moi, elle révèle surtout une question plus profonde : quelle place les artistes de la diaspora choisiront-ils d’occuper dans la construction du futur de la créativité ?</p><p>Nous parlons souvent de représentation. Nous voulons voir davantage d’artistes noirs dans les musées, les galeries, les collections et les biennales. Cette quête demeure essentielle. Mais une autre réalité émerge. Les technologies qui serviront à créer les œuvres de demain sont en train d’être imaginées aujourd’hui. Si nous voulons que nos histoires, nos sensibilités et nos imaginaires participent à ce futur, nous devons aussi être présents là où ces outils prennent forme.</p><p>L’intelligence artificielle ne transforme pas seulement la production des œuvres. Elle transforme les processus de création eux-mêmes. Elle influence la manière de rechercher, d’expérimenter, de raconter, de transmettre et même d’imaginer. Derrière chaque technologie se trouvent des choix humains : quelles références culturelles sont utilisées, quelles œuvres servent de modèles, quels récits deviennent visibles. Les outils ne sont jamais complètement neutres.</p><p>Être présent dans cette transformation ne signifie pas que chaque artiste doive devenir programmeur. En revanche, cela suppose de créer des ponts avec les chercheurs, les designers, les ingénieurs, les universités, les laboratoires de recherche et les entreprises qui développent les technologies créatives. Les artistes ont une manière particulière de poser des questions. Ils apportent une sensibilité, une mémoire et une vision du monde que la technique seule ne peut produire.</p><p>Cette réflexion nourrit également ma propre pratique. Mon travail explore les fragments d’identité, la mémoire et les liens invisibles qui unissent les individus. Pendant des années, la peinture, la sculpture et l’écriture ont constitué mes principaux langages. L’intelligence artificielle n’est pas venue les remplacer. Elle est venue ouvrir un nouvel espace de recherche. Je l’utilise pour explorer des archives, imaginer des installations, tester des mises en espace ou développer des expériences immersives avant de revenir à la matière. Plus j’avance dans cette démarche, plus une conviction s’impose : notre responsabilité ne consiste pas uniquement à utiliser ces outils, mais aussi à participer à leur évolution.</p><p>Les artistes noirs et afro descendants portent des expériences façonnées par les migrations, les héritages multiples, la mémoire et la résilience. Cette richesse ne doit pas seulement apparaître dans les œuvres. Elle peut également influencer les technologies qui permettront aux générations futures de créer. C’est là que se joue, selon moi, un nouvel enjeu de représentation.</p><p>L’avenir de l’art sera sans doute hybride. Il réunira la matière, le geste, les archives, les algorithmes et les expériences immersives. Dans ce contexte, les artistes qui participeront à la conception des outils auront une influence sur les formes artistiques de demain. Voilà pourquoi il est essentiel que les artistes de la diaspora prennent place dans ces espaces d’innovation.</p><p>Être représenté dans les œuvres demeure indispensable. Mais cela ne suffit plus. Nous devons aussi être présents là où s’invente le futur de la créativité. Non pour suivre le mouvement, mais pour contribuer à le définir.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer id="contact">
+  <div class="wrap foot">
+    <div>
+      <h2>Contact</h2>
+      <p><a href="mailto:cheriffmama@yahoo.com">cheriffmama@yahoo.com</a><br>
+      <a href="https://www.instagram.com/clmart90/" target="_blank" rel="noopener">Instagram</a></p>
+    </div>
+    <p class="fine">© 2026 Cherif Mama</p>
+  </div>
+</footer>
+
+<!-- visionneuse -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Visionneuse d’œuvre" aria-hidden="true">
+  <button class="lb-close i" type="button" id="lb-close" data-fr="Fermer ×" data-en="Close ×">Fermer ×</button>
+  <div class="lb-stage" id="lb-stage"><img id="lb-img" alt=""></div>
+  <div class="lb-side">
+    <div id="lb-text"></div>
+    <div class="lb-nav">
+      <button type="button" id="lb-prev" class="i" data-fr="Précédente" data-en="Previous">Précédente</button>
+      <button type="button" id="lb-next" class="i" data-fr="Suivante" data-en="Next">Suivante</button>
+      <span class="lb-count" id="lb-count" aria-live="polite"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var doc = document;
+  function $(s, r){ return (r || doc).querySelector(s); }
+  function $$(s, r){ return Array.prototype.slice.call((r || doc).querySelectorAll(s)); }
+  var lang = 'fr';
+  var showReady = false, pauseBtn = null;
+
+  /* ----- langue ----- */
+  function applyLang(){
+    $$('[data-fr]').forEach(function(el){
+      var v = el.getAttribute('data-' + lang);
+      if (v === null) return;
+      if (el.hasAttribute('data-html')) el.innerHTML = v; else el.textContent = v;
+    });
+    doc.documentElement.lang = lang;
+    $('#lang').textContent = lang === 'fr' ? 'EN' : 'FR';
+    if (pauseBtn) setPauseLabel();
+  }
+  $('#lang').addEventListener('click', function(){
+    lang = lang === 'fr' ? 'en' : 'fr';
+    applyLang();
+  });
+
+  /* ----- barre : le nom apparaît quand le titre sort de l'écran ----- */
+  var bar = $('#bar');
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(e){
+      bar.classList.toggle('scrolled', !e[0].isIntersecting);
+    }, { rootMargin: '-56px 0px 0px 0px' }).observe($('#name'));
+  }
+
+  /* ----- filtres ----- */
+  var figs = $$('.work');
+  var buttons = $$('.filters button');
+  function setFilter(f){
+    buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === f)); });
+    figs.forEach(function(fg){
+      var tags = fg.getAttribute('data-series').split(' ');
+      fg.hidden = !(f === 'all' || tags.indexOf(f) > -1);
+    });
+    if (showReady) resetShow();
+  }
+  buttons.forEach(function(b){
+    b.addEventListener('click', function(){ setFilter(b.getAttribute('data-filter')); });
+  });
+  // anciens liens (QR des badges) : #peinture et #sculpture
+  function fromHash(){
+    var h = location.hash.replace('#','');
+    if (h === 'sculpture'){ setFilter('sculpture'); }
+    else if (h === 'peinture'){ setFilter('all'); }
+  }
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+
+  /* ----- visionneuse ----- */
+  var lb = $('#lb'), lbImg = $('#lb-img'), lbText = $('#lb-text'), lbCount = $('#lb-count');
+  var cur = null, lastFocus = null;
+  function visible(){ return figs.filter(function(f){ return !f.hidden; }); }
+  function render(){
+    var list = visible(), idx = list.indexOf(cur);
+    var a = $('.work-img', cur), im = $('img', a);
+    lbImg.src = im.getAttribute('src');
+    lbImg.alt = im.alt;
+    lbText.innerHTML = '';
+    lbText.appendChild($('figcaption', cur).cloneNode(true));
+    var d = $('.desc', cur);
+    if (d){
+      var c = d.cloneNode(true);
+      c.hidden = false; c.className = 'lb-desc';
+      lbText.appendChild(c);
+    }
+    lbCount.textContent = (idx + 1) + ' / ' + list.length;
+    applyLang();
+    $('.lb-side').scrollTop = 0;
+  }
+  function openLb(fg){
+    cur = fg; lastFocus = doc.activeElement;
+    lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
+    doc.body.style.overflow = 'hidden';
+    render();
+    $('#lb-close').focus();
+    restartTimer();
+  }
+  function closeLb(){
+    lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true');
+    doc.body.style.overflow = '';
+    if (lastFocus) lastFocus.focus();
+    if (showReady){ var l = visible(), k = l.indexOf(cur); showAt(k < 0 ? 0 : k, true); }
+  }
+  function step(n){
+    var list = visible();
+    cur = list[(list.indexOf(cur) + n + list.length) % list.length];
+    render();
+  }
+  $$('.work-img').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      openLb(a.closest('.work'));
+    });
+  });
+  $('#lb-close').addEventListener('click', closeLb);
+  $('#lb-prev').addEventListener('click', function(){ step(-1); });
+  $('#lb-next').addEventListener('click', function(){ step(1); });
+  doc.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLb();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+    else if (e.key === 'Tab'){
+      var f = $$('button', lb);
+      if (e.shiftKey && doc.activeElement === f[0]){ e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && doc.activeElement === f[f.length - 1]){ e.preventDefault(); f[0].focus(); }
+    }
+  });
+  var x0 = null;
+  $('#lb-stage').addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; }, { passive: true });
+  $('#lb-stage').addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+    x0 = null;
+  });
+
+  /* ----- diaporama : grande image + vignettes ----- */
+  var stageImgs = $$('#show-stage img'), thumbsBox = $('#thumbs'), capBox = $('#show-cap'), cnt = $('#show-count');
+  pauseBtn = $('#show-pause');
+  var thumbBtns = [], sIdx = 0, front = 1, timer = null, inView = true, hovering = false, DELAY = 5500;
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var playing = !reduce;
+  function setPauseLabel(){
+    pauseBtn.textContent = playing ? 'Pause' : (lang === 'fr' ? 'Lecture' : 'Play');
+    pauseBtn.setAttribute('aria-pressed', String(!playing));
+  }
+  function canRun(){ return playing && inView && !hovering && !doc.hidden && !lb.classList.contains('open') && thumbBtns.length > 1; }
+  function restartTimer(){
+    clearTimeout(timer); timer = null;
+    if (!canRun()) return;
+    timer = setTimeout(function(){ showAt(sIdx + 1); }, DELAY);
+  }
+  function buildThumbs(){
+    thumbsBox.innerHTML = ''; thumbBtns = [];
+    visible().forEach(function(fg, i){
+      var im = $('.work-img img', fg);
+      var b = doc.createElement('button');
+      b.type = 'button'; b.className = 'thumb';
+      b.setAttribute('aria-label', $('.cap-title', fg).textContent);
+      var g = doc.createElement('img');
+      g.src = im.getAttribute('data-th') || im.getAttribute('src'); g.alt = '';
+      if (i > 7) g.loading = 'lazy';
+      b.appendChild(g);
+      b.addEventListener('click', function(){ showAt(i); });
+      thumbsBox.appendChild(b); thumbBtns.push(b);
+    });
+  }
+  function showAt(i, instant){
+    var list = visible(); if (!list.length) return;
+    sIdx = (i + list.length) % list.length;
+    var fg = list[sIdx], im = $('.work-img img', fg);
+    var nxt = stageImgs[1 - front], prv = stageImgs[front];
+    if (instant) stageImgs.forEach(function(m){ m.style.transition = 'none'; });
+    nxt.src = im.getAttribute('src'); nxt.alt = im.alt;
+    nxt.classList.add('on'); prv.classList.remove('on');
+    if (instant){ void nxt.offsetWidth; stageImgs.forEach(function(m){ m.style.transition = ''; }); }
+    front = 1 - front;
+    thumbBtns.forEach(function(b, k){
+      if (k === sIdx) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+    });
+    var tb = thumbBtns[sIdx];
+    if (tb) thumbsBox.scrollTo({ left: tb.offsetLeft - (thumbsBox.clientWidth - tb.offsetWidth) / 2, behavior: (instant || reduce) ? 'auto' : 'smooth' });
+    capBox.innerHTML = '';
+    capBox.appendChild($('figcaption', fg).cloneNode(true));
+    cnt.textContent = (sIdx + 1) + ' / ' + list.length;
+    applyLang();
+    var after = list[(sIdx + 1) % list.length];
+    new Image().src = $('.work-img img', after).getAttribute('src');
+    restartTimer();
+  }
+  function resetShow(){ buildThumbs(); showAt(0, true); }
+  $('#show-prev').addEventListener('click', function(){ showAt(sIdx - 1); });
+  $('#show-next').addEventListener('click', function(){ showAt(sIdx + 1); });
+  pauseBtn.addEventListener('click', function(){ playing = !playing; setPauseLabel(); restartTimer(); });
+  $('#show-stage').addEventListener('click', function(){ openLb(visible()[sIdx]); });
+  var sx = null;
+  $('#show-stage').addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, { passive: true });
+  $('#show-stage').addEventListener('touchend', function(e){
+    if (sx === null) return;
+    var d = e.changedTouches[0].clientX - sx;
+    if (Math.abs(d) > 50) showAt(sIdx + (d < 0 ? 1 : -1));
+    sx = null;
+  });
+  $('#show').addEventListener('mouseenter', function(){ hovering = true; restartTimer(); });
+  $('#show').addEventListener('mouseleave', function(){ hovering = false; restartTimer(); });
+  doc.addEventListener('visibilitychange', restartTimer);
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(e){ inView = e[0].isIntersecting; restartTimer(); }, { threshold: 0.2 }).observe($('#show'));
+  }
+
+  /* ----- mode d'affichage : diaporama / grille ----- */
+  var viewBtns = $$('.views button');
+  function setView(v){
+    viewBtns.forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === v)); });
+    $('#show').hidden = (v === 'grid');
+    $('#grid').hidden = (v !== 'grid');
+    if (v !== 'grid') showAt(sIdx, true);
+  }
+  viewBtns.forEach(function(b){ b.addEventListener('click', function(){ setView(b.getAttribute('data-view')); }); });
+
+  showReady = true;
+  setPauseLabel();
+  resetShow();
+})();
+</script>
+</body>
+</html>
